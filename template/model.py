@@ -23,6 +23,49 @@ def index():
     return page_view("index")
 
 #-----------------------------------------------------------------------------
+
+# Register
+#-----------------------------------------------------------------------------
+
+def register_form():
+    '''
+        register_form
+        Returns the view for the register_form
+    '''
+    return page_view("register")
+
+
+# -----------------------------------------------------------------------------
+
+# Check the register credentials
+def register_check(username, password):
+    '''
+        register_check
+        Checks usernames and passwords
+
+        :: username :: The username
+        :: password :: The password
+
+        Returns either a view for valid credentials, or a view for invalid credentials
+    '''
+
+    # By default assume good creds
+    register = True
+
+    if username == "":  # Invalid Username
+        err_str = "Please enter a username"
+        register = False
+
+    if password == "":  # Invalid password
+        err_str = "Please enter a password"
+        register = False
+
+    if register:
+        return page_view("valid_register", name=username)
+    else:
+        return page_view("invalid", reason=err_str)
+
+#-----------------------------------------------------------------------------
 # Login
 #-----------------------------------------------------------------------------
 

@@ -75,6 +75,39 @@ def get_index():
 
 #-----------------------------------------------------------------------------
 
+# Display the register page
+@get('/register')
+def get_register_controller():
+    '''
+        get_register
+
+        Serves the register page
+    '''
+    return model.register_form()
+
+
+# -----------------------------------------------------------------------------
+# Attempt the register page
+@post('/register')
+def post_register():
+    '''
+        post_register
+
+        Handles register attempts
+        Expects a form containing 'username' and 'password' fields
+    '''
+
+    #get the register details from the froms
+    pw = request.forms.get('password')
+    user = request.forms.get('username')
+
+    #checking register details entered
+    return model.register_check(user, pw)
+
+
+# -----------------------------------------------------------------------------
+
+
 # Display the login page
 @get('/login')
 def get_login_controller():
