@@ -8,6 +8,7 @@
 # A heads up, this code is for demonstration purposes; you might want to modify it for your own needs
 # Currently it does basic insertions and lookups
 import hashlib
+import os
 class Table():
     def __init__(self, table_name, *table_fields):
         self.entries = []
@@ -77,10 +78,13 @@ class DB():
         self.tables = {}
 
         # Setup your tables
-        self.add_table('users', "id", "username", "password", "admin")
+        self.add_table('users', "id", "username", "salt", "password", "admin")
         admin_pass = "poiuytrewq098765@#"
-        hashed_admin_pass = hashlib.sha256(str(admin_pass).encode('utf-8')).hexdigest()
-        self.create_table_entry("users", 0, "admin", hashed_admin_pass, 1)
+        salt = os.urandom(32)
+        pw = str(admin_pass).encode('utf-8')
+        salted_pw = salt + pw
+        hashed_admin_pass = hashlib.sha256(salted_pw).hexdigest()
+        self.create_table_entry("users", 0, "admin", salt, hashed_admin_pass, 1)
         
         return
 
