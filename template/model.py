@@ -5,12 +5,22 @@
     It should exist as a separate layer to any database or data structure that you might be using
     Nothing here should be stateful, if it's stateful let the database handle it
 '''
+# from sql import SQLDatabase
 import view
 import random
-
+import hashlib
+# from sqlite3 import DatabaseError
+from no_sql_db import Table
+from no_sql_db import DATABASE
 # Initialise our views, all arguments are defaults for the template
 page_view = view.View()
-
+# DATABASE = SQLDatabase()
+# SQLDatabase.database_setup()
+# DATABASE = DB()
+# USERS = Table()
+# USERS.create_entry(0, "admin", "ghdjdh7388298#+sj", 1)
+# DATABASE.add_table("users", "id", "username", "password", "admin")
+USERS = DATABASE.get_table("users")
 #-----------------------------------------------------------------------------
 # Index
 #-----------------------------------------------------------------------------
@@ -51,6 +61,13 @@ def register_check(username, password):
 
     # By default assume good creds
     register = True
+    admin = False
+
+    user_taken = DATABASE.search_table("users", "username", username)
+
+    if user_taken != None:
+        err_str = "Username taken!"
+        register = False
 
     if username == "":  # Invalid Username
         err_str = "Please enter a username"
@@ -60,7 +77,30 @@ def register_check(username, password):
         err_str = "Please enter a password"
         register = False
 
+    has_special_char = False
+    for k in password:
+        if k in "!@#$%^&*+=-":
+            has_special_char = True
+            break
+
+    if has_special_char == False:
+        err_str = "Password must contain at least one special character"
+        register = False
+
+    has_digit = False
+    for k in password:
+        if k.isdigit():
+            has_digit = True
+            break
+
+    if has_digit == False:
+        err_str = "Password must contain at least one number"
+        register = False
+
     if register:
+        secure_password = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
+        id = len(USERS.entries)
+        DATABASE.create_table_entry("users", id, username, secure_password, 0)
         return page_view("valid_register", name=username)
     else:
         return page_view("invalid", reason=err_str)
@@ -92,14 +132,20 @@ def login_check(username, password):
 
     # By default assume good creds
     login = True
-    
-    if username != "admin": # Wrong Username
+
+    user = DATABASE.search_table("users", "username", username)
+
+    if user == None: # user does not exist
         err_str = "Incorrect Username"
         login = False
-    
-    if password != "password": # Wrong password
-        err_str = "Incorrect Password"
-        login = False
+
+    else:
+        stored_pass = DATABASE.search_2_values("users", "username", username, "password")
+        hashed_pass = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
+        if stored_pass != hashed_pass: # Wrong password
+            err_str = "Incorrect Password"
+            print(f"stored: {stored_pass}, given: {hashed_pass}")
+            login = False
         
     if login: 
         return page_view("valid", name=username)
