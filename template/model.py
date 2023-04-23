@@ -9,6 +9,7 @@
 import view
 import random
 import hashlib
+import os
 # from sqlite3 import DatabaseError
 from no_sql_db import Table
 from no_sql_db import DATABASE
@@ -98,9 +99,12 @@ def register_check(username, password):
         register = False
 
     if register:
-        secure_password = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
+        salt = os.urandom(32)
+        pw = str(password).encode('utf-8')
+        salted_pw = salt+pw
+        secure_password = hashlib.sha256(salted_pw).hexdigest()
         id = len(USERS.entries)
-        DATABASE.create_table_entry("users", id, username, secure_password, 0)
+        DATABASE.create_table_entry("users", id, username, salt, secure_password, 0)
         return page_view("valid_register", name=username)
     else:
         return page_view("invalid", reason=err_str)
@@ -141,7 +145,10 @@ def login_check(username, password):
 
     else:
         stored_pass = DATABASE.search_2_values("users", "username", username, "password")
-        hashed_pass = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
+        stored_salt = DATABASE.search_2_values("users", "username", username, "salt")
+        pw = str(password).encode('utf-8')
+        salted_pw = stored_salt + pw
+        hashed_pass = hashlib.sha256(salted_pw).hexdigest()
         if stored_pass != hashed_pass: # Wrong password
             err_str = "Incorrect Password"
             print(f"stored: {stored_pass}, given: {hashed_pass}")
