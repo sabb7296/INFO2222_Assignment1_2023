@@ -70,15 +70,15 @@ def register_check(username, password):
         err_str = "Username taken!"
         register = False
 
-    if username == "":  # Invalid Username
+    elif username == "":  # Invalid Username
         err_str = "Please enter a username"
         register = False
 
-    if password == "":  # Invalid password
+    elif password == "":  # Invalid password
         err_str = "Please enter a password"
         register = False
 
-    if len(password) < 14:
+    elif len(password) < 14:
         err_str = "Please enter a stronger password"
         register = False
 
@@ -88,7 +88,7 @@ def register_check(username, password):
             has_special_char = True
             break
 
-    if has_special_char == False:
+    elif has_special_char == False:
         err_str = "Password must contain at least one special character"
         register = False
 
@@ -98,7 +98,7 @@ def register_check(username, password):
             has_digit = True
             break
 
-    if has_digit == False:
+    elif has_digit == False:
         err_str = "Password must contain at least one number"
         register = False
 
