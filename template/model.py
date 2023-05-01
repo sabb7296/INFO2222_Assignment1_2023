@@ -78,6 +78,10 @@ def register_check(username, password):
         err_str = "Please enter a password"
         register = False
 
+    if len(password) < 14:
+        err_str = "Please enter a stronger password"
+        register = False
+
     has_special_char = False
     for k in password:
         if k in "!@#$%^&*+=-":
